@@ -1,5 +1,5 @@
-function [ Iftpn,Ig,Ic,matf ] = classifier(training_structure,ms,rbf1,C1)
-% function [ matf ] = classifier(training_structure,ms)
+% function [ Iftpn,Ig,Ic,matf ] = classifier(training_structure,ms,rbf1,C1)
+function [matf] = classifier(training_structure,ms,cs,bs,ob,fs,choice)
 %UNTITLED2 Summary of this function goes here
 
 %1 - foreground %2- background
@@ -18,7 +18,7 @@ fp=0;
 fn=0;
 matf=[];
 lf=1920; %last file
-sf=993;
+sf=995;
 z=sf;
 while(z< lf)
     cnt1=0;
@@ -26,7 +26,8 @@ while(z< lf)
     filename2 = strcat('C:\Users\ndy102\Desktop\thesis\notochord5dpfOriginal\',srcFiles2(z).name);
     I = imread(filename1);
     I1 = imread(filename2);
-    Ig = rgb2gray(I1);
+    I1 = rgb2gray(I1);
+    Ig=I1;
     Ic =Ig;
     Iftpn = Ig;
     %     displayimages(I);
@@ -58,10 +59,9 @@ while(z< lf)
         
         while(j < bbc(4) && i<bbc(2))
             j=j+1;
-            maskc= I1(i-ms:i+ms,j-ms:j+ms,:);
-            mask = rgb2gray(maskc);
-            data_point=double(reshape(mask,[1,(2*ms+1)^2]));
-            p= svmclassify(training_structure,data_point);
+            mask= I1(i-fs:i+fs,j-fs:j+fs);
+            data_point= feature_selector_method( mask,choice,cs,bs,ob );
+            p = svmclassify(training_structure,data_point);
             if(numel(selected_pixels)~=0)
                 temp=((i-selected_pixels(1,:)).^2)+((j-selected_pixels(2,:)).^2);
             else
@@ -111,23 +111,23 @@ while(z< lf)
                     Iftpn(i,j)=4;
                 end
             end
-            %             if(numel(selected_pixels)~=0)
-            %                 if((mincbx-i)>10)
-            %                     i=i+round((mincbx-i)/2)+5;
-            %                 end
-            %                 if((i-maxcbx)>10)
-            %                     i=i+ round((i-maxcbx)/2)+5;
-            %                 end
-            %                 if((mincby-j)>10)
-            %                     j=j+round((mincby-j)/2)+5;
-            %                 end
-            %                 if((j-maxcby)>10)
-            %                     j=j + round((j-maxcby)/2)+5 ;
-            %                 end
-            %             else
-            %                 i=i+1;
-            %                 j=j+1;
-            %             end
+            if(numel(selected_pixels)~=0)
+                if((mincbx-i)>10)
+                    i=i+round((mincbx-i)/2)+5;
+                end
+                if((i-maxcbx)>10)
+                    i=i+ round((i-maxcbx)/2)+5;
+                end
+                if((mincby-j)>10)
+                    j=j+round((mincby-j)/2)+5;
+                end
+                if((j-maxcby)>10)
+                    j=j + round((j-maxcby)/2)+5 ;
+                end
+            else
+                i=i+1;
+                j=j+1;
+            end
             
         end
         
@@ -141,13 +141,13 @@ while(z< lf)
     
     z=z+6450;
 end
-filesavename= ['classifiedimage','_',num2str(rbf1),'_',num2str(C1),'_',num2str(ms),'_',num2str(z-6450)];
-images_save{1}=Ig;
-images_save{2}=Ic;
-images_save{3}=Iftpn;
-images_save{4}=Iftpn;
-images_save{5}=bbc;
-images_save{6}=matf;
-save(filesavename,'images_save');
+% filesavename= ['classifiedimage','_',num2str(rbf1),'_',num2str(C1),'_',num2str(ms),'_',num2str(z-6450)];
+% images_save{1}=Ig;
+% images_save{2}=Ic;
+% images_save{3}=Iftpn;
+% images_save{4}=Iftpn;
+% images_save{5}=bbc;
+% images_save{6}=matf;
+% save(filesavename,'images_save');
 end
 
